@@ -103,6 +103,10 @@ The `jobPositionTypes` array contains IDs that map to:
 | EU (all European) | ~90              |
 | Iceland (IS)      | ~1               |
 
+## Free Tier Limitation
+
+When running on the Apify free tier, the scraper is limited to **50 jobs maximum** to prevent excessive resource usage. Upgrade to a paid plan for unlimited scraping.
+
 ## Performance
 
 - **Speed**: ~30 jobs per minute with high concurrency
