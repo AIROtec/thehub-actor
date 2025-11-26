@@ -37,7 +37,7 @@ async function main() {
         process.exit(1);
     }
 
-    const actorName = process.env.ACTOR_NAME || 'thehub-jobs-scraper';
+    const actorName = process.env.ACTOR_NAME || 'the-hub-jobs-scraper';
 
     console.log('\n🏷️  Tagging build as latest\n');
     console.log(`Actor: ${actorName}`);

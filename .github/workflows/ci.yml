@@ -137,7 +137,7 @@ jobs:
 
                   # Run apify call and capture output (disable set -e temporarily to see errors)
                   set +e
-                  OUTPUT=$(apify call thehub-jobs-scraper \
+                  OUTPUT=$(apify call the-hub-jobs-scraper \
                     --input '{"countries": ["FI"], "maxRequestsPerCrawl": 3}' \
                     --build "${{ steps.build-tag.outputs.tag }}" \
                     2>&1)

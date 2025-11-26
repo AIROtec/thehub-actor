@@ -1,5 +1,5 @@
 {
-    "name": "thehub-jobs-scraper",
+    "name": "the-hub-jobs-scraper",
     "version": "0.0.1",
     "type": "module",
     "description": "Apify Actor for scraping job listings from TheHub.io Nordic startup job board.",

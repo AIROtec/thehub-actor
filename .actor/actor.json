@@ -1,6 +1,6 @@
 {
     "actorSpecification": 1,
-    "name": "thehub-jobs-scraper",
+    "name": "the-hub-jobs-scraper",
     "title": "TheHub.io Jobs Scraper",
     "description": "Scrape job listings from TheHub.io, the Nordic startup job board. Extract comprehensive job data including company details, salary, location, and full descriptions.",
     "version": "1.0",
