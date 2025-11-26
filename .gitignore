@@ -23,3 +23,6 @@ storage
 
 # Test coverage
 coverage
+
+# Integration test artifacts
+.detected-position-types.json

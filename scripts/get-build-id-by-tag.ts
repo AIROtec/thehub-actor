@@ -55,9 +55,11 @@ async function main() {
 
         if (!recentBuild) {
             const latestBuild = builds[0];
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const latestBuildAny = latestBuild as any;
             console.log(`⚠️  Warning: No build found in the last 5 minutes. Using latest build instead.`);
             console.log(`\n✅ Latest build:`);
-            console.log(`   Build Number: ${latestBuild.buildNumber}`);
+            console.log(`   Build Number: ${latestBuildAny.buildNumber || 'N/A'}`);
             console.log(`   Build ID: ${latestBuild.id}`);
             console.log(`   Status: ${latestBuild.status}`);
             console.log(`   Started: ${latestBuild.startedAt}`);
@@ -65,8 +67,10 @@ async function main() {
             process.exit(0);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const recentBuildAny = recentBuild as any;
         console.log(`✅ Found recent build:`);
-        console.log(`   Build Number: ${recentBuild.buildNumber}`);
+        console.log(`   Build Number: ${recentBuildAny.buildNumber || 'N/A'}`);
         console.log(`   Build ID: ${recentBuild.id}`);
         console.log(`   Status: ${recentBuild.status}`);
         console.log(`   Started: ${recentBuild.startedAt}`);

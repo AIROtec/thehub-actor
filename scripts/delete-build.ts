@@ -44,9 +44,11 @@ async function main() {
             process.exit(0);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const buildAny = build as any;
         console.log(`Actor ID: ${build.actId}`);
         console.log(`Build number: ${build.buildNumber}`);
-        console.log(`Build tag: ${build.buildTag || '(none)'}`);
+        console.log(`Build tag: ${buildAny.buildTag || '(none)'}`);
 
         // Delete the build
         console.log('\nDeleting build...');

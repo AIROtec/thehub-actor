@@ -15,6 +15,8 @@
         "@apify/eslint-config": "^1.0.0",
         "@apify/tsconfig": "^0.1.1",
         "@types/node": "^22.15.32",
+        "@vitest/coverage-v8": "^4.0.14",
+        "@vitest/ui": "^4.0.8",
         "apify-client": "^2.19.0",
         "dotenv-cli": "^11.0.0",
         "eslint": "^9.29.0",
@@ -24,7 +26,8 @@
         "prettier": "^3.5.3",
         "tsx": "^4.20.3",
         "typescript": "^5.8.3",
-        "typescript-eslint": "^8.34.1"
+        "typescript-eslint": "^8.34.1",
+        "vitest": "^4.0.14"
     },
     "scripts": {
         "start": "npm run start:dev",
@@ -35,6 +38,13 @@
         "lint:fix": "eslint --fix",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
+        "test": "vitest run",
+        "test:unit": "vitest run test/unit",
+        "test:integration": "vitest run test/integration",
+        "test:position-types": "vitest run test/integration/position-type-validation.test.ts",
+        "test:e2e": "tsx scripts/validate-e2e-run.ts",
+        "test:watch": "vitest",
+        "test:coverage": "vitest run --coverage",
         "prepare": "husky || true"
     },
     "author": "It's not you it's me",

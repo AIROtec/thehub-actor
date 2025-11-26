@@ -1,0 +1,94 @@
+name: Integration Tests
+
+on:
+    schedule:
+        # Run nightly at 2 AM UTC
+        - cron: '0 2 * * *'
+    workflow_dispatch:
+        # Allow manual trigger from GitHub Actions UI
+
+jobs:
+    integration-tests:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+            pull-requests: write
+            issues: write
+            id-token: write
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run integration tests
+              run: npm run test:integration
+              continue-on-error: true
+              id: integration_tests
+              env:
+                  CI: true
+
+            - name: Check for position type changes
+              id: check_position_types
+              if: always()
+              run: |
+                  if [ -f .detected-position-types.json ]; then
+                    echo "position_types_changed=true" >> $GITHUB_OUTPUT
+                    echo "date=$(date +%Y-%m-%d)" >> $GITHUB_OUTPUT
+                    echo "Position type changes detected"
+                    cat .detected-position-types.json
+                  else
+                    echo "position_types_changed=false" >> $GITHUB_OUTPUT
+                  fi
+
+            - name: Update position types with Claude Code
+              if: steps.check_position_types.outputs.position_types_changed == 'true' && github.ref == 'refs/heads/main'
+              uses: anthropics/claude-code-action@v1
+              env:
+                  GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+                  GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+              with:
+                  anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+                  github_token: ${{ secrets.PAT_TOKEN }}
+                  settings: |
+                      {
+                        "permissions": {
+                          "allow": [
+                            "Read",
+                            "Edit",
+                            "Write",
+                            "Bash(git:*)",
+                            "Bash(gh:*)"
+                          ]
+                        }
+                      }
+                  prompt: |
+                      Read `.detected-position-types.json` for job position type changes from thehub.io API.
+
+                      Update `src/types.ts` with the new position types:
+                      1. Add any new IDs to the JOB_POSITION_TYPE_MAP constant
+                      2. For new IDs, use a placeholder label like 'Unknown (ID)' - we'll need to manually determine the correct label
+                      3. Remove any IDs that no longer exist in the API
+
+                      After updating the file:
+                      1. Create a new branch named "update-position-types-${{ steps.check_position_types.outputs.date }}"
+                      2. Commit changes with message "Update thehub.io job position types"
+                      3. Push the branch to origin
+                      4. Create a PR using: gh pr create --title "Update thehub.io job position types" --body "Automated position type sync from nightly integration tests (${{ steps.check_position_types.outputs.date }}). Please review the labels for any new position types."
+
+            - name: Upload test artifacts on failure
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: integration-test-results-${{ github.run_number }}
+                  path: |
+                      .detected-position-types.json
+                  retention-days: 30

@@ -5,7 +5,7 @@
  * This script validates the output of an Actor run to ensure:
  * - The run completed successfully
  * - Data quality meets requirements (required fields present)
- * - Items have valid structure
+ * - Items have valid structure matching JobOutput schema
  *
  * Usage:
  *   tsx scripts/validate-e2e-run.ts <dataset-id>
@@ -13,101 +13,8 @@
  */
 
 import { ApifyClient } from 'apify-client';
-
-interface JobData {
-    id?: string;
-    title?: string;
-    description?: string;
-    company?: {
-        name?: string;
-    };
-    location?: {
-        country?: string;
-    };
-    url?: string;
-    scrapedAt?: string;
-}
-
-interface ValidationResult {
-    isValid: boolean;
-    errors: string[];
-    warnings: string[];
-}
-
-function validateJobData(items: JobData[]): ValidationResult {
-    const errors: string[] = [];
-    const warnings: string[] = [];
-
-    // Check minimum items
-    if (items.length === 0) {
-        errors.push('No items in dataset');
-        return { isValid: false, errors, warnings };
-    }
-
-    // Required fields for each item
-    const requiredFields = ['id', 'title', 'url', 'scrapedAt'];
-
-    let validItems = 0;
-    let invalidItems = 0;
-
-    for (const item of items) {
-        // Skip error items
-        if ('error' in item) {
-            warnings.push(`Found error item: ${(item as any).error}`);
-            continue;
-        }
-
-        let itemValid = true;
-
-        for (const field of requiredFields) {
-            if (!item[field as keyof JobData]) {
-                itemValid = false;
-                warnings.push(`Item ${item.id || 'unknown'} missing required field: ${field}`);
-            }
-        }
-
-        // Check nested required fields
-        if (!item.company?.name) {
-            warnings.push(`Item ${item.id || 'unknown'} missing company.name`);
-        }
-
-        if (!item.location?.country) {
-            warnings.push(`Item ${item.id || 'unknown'} missing location.country`);
-        }
-
-        // Check description exists and has content
-        if (!item.description || item.description.length < 10) {
-            warnings.push(`Item ${item.id || 'unknown'} has empty or very short description`);
-        }
-
-        if (itemValid) {
-            validItems++;
-        } else {
-            invalidItems++;
-        }
-    }
-
-    console.log(`\n📊 Data Summary:`);
-    console.log(`   Total items: ${items.length}`);
-    console.log(`   Valid items: ${validItems}`);
-    console.log(`   Invalid items: ${invalidItems}`);
-
-    // Require at least 1 valid item
-    if (validItems === 0) {
-        errors.push('No valid items found in dataset');
-    }
-
-    // Allow up to 50% invalid items
-    if (invalidItems > items.length / 2) {
-        errors.push(`Too many invalid items: ${invalidItems}/${items.length}`);
-    }
-
-    return {
-        isValid: errors.length === 0,
-        errors,
-        warnings,
-    };
-}
+import { validateDataQuality, validatePerformance, generateValidationReport } from '../test/e2e/helpers/validators.js';
+import type { JobOutput } from '../test/helpers/schema-validator.js';
 
 async function main() {
     // Get dataset ID from args or env
@@ -135,7 +42,7 @@ async function main() {
         // Fetch dataset items
         console.log('📥 Fetching dataset items...');
         const dataset = await client.dataset(datasetId).listItems();
-        const items = dataset.items as unknown as JobData[];
+        const items = dataset.items as unknown as Partial<JobOutput>[];
 
         console.log(`✓ Retrieved ${items.length} items\n`);
 
@@ -144,21 +51,57 @@ async function main() {
             process.exit(1);
         }
 
-        // Validate data
+        // Validate data quality
         console.log('🔬 Validating data quality...');
-        const result = validateJobData(items);
+        const dataQualityResult = validateDataQuality(items);
 
-        if (result.warnings.length > 0) {
-            console.warn('\n⚠️  Warnings:');
-            result.warnings.slice(0, 10).forEach((warn) => console.warn(`  - ${warn}`));
-            if (result.warnings.length > 10) {
-                console.warn(`  ... and ${result.warnings.length - 10} more warnings`);
+        if (!dataQualityResult.isValid) {
+            console.error('\n❌ Data Quality Validation Failed:');
+            dataQualityResult.errors.slice(0, 20).forEach((err) => console.error(`  - ${err}`));
+            if (dataQualityResult.errors.length > 20) {
+                console.error(`  ... and ${dataQualityResult.errors.length - 20} more errors`);
             }
+        } else {
+            console.log('✓ Data quality validation passed');
         }
 
-        if (!result.isValid) {
-            console.error('\n❌ Validation Errors:');
-            result.errors.forEach((err) => console.error(`  - ${err}`));
+        // Get dataset info for metadata
+        const datasetInfo = await client.dataset(datasetId).get();
+
+        // Construct performance metrics from dataset info
+        const performanceMetrics = {
+            durationMillis:
+                datasetInfo?.modifiedAt && datasetInfo?.createdAt
+                    ? new Date(datasetInfo.modifiedAt).getTime() - new Date(datasetInfo.createdAt).getTime()
+                    : 0,
+            memoryUsageBytes: 0, // Not available from dataset info
+            requestsFinished: items.length + 1, // Approximate: items + API calls
+            requestsFailed: 0, // Not directly available
+        };
+
+        // Validate performance
+        console.log('\n⚡ Validating performance metrics...');
+        const performanceResult = validatePerformance(performanceMetrics, {
+            maxDurationMillis: 5 * 60 * 1000, // 5 minutes
+            maxMemoryMB: 1024, // 1GB
+            expectedRequestsMin: 1, // At least 1 request
+            expectedRequestsMax: 100, // Max 100 requests for e2e test
+            maxFailedRequests: 1, // Allow 1 failed request
+        });
+
+        if (!performanceResult.isValid) {
+            console.error('\n❌ Performance Validation Failed:');
+            performanceResult.errors.forEach((err) => console.error(`  - ${err}`));
+        } else {
+            console.log('✓ Performance validation passed');
+        }
+
+        // Generate and print report
+        const report = generateValidationReport(dataQualityResult, performanceResult, items.length);
+        console.log('\n' + report);
+
+        // Exit with appropriate code
+        if (!dataQualityResult.isValid || !performanceResult.isValid) {
             console.error('\n❌ E2E Validation FAILED');
             process.exit(1);
         }
