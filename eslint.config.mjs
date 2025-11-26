@@ -7,7 +7,15 @@ import tsEslint from 'typescript-eslint';
 // eslint-disable-next-line import/no-default-export
 export default [
     {
-        ignores: ['**/dist', 'eslint.config.mjs', '**/scripts/**', '**/coverage/**', '**/output/**', '**/storage/**'],
+        ignores: [
+            '**/dist',
+            'eslint.config.mjs',
+            '**/scripts/**',
+            '**/vitest.config.ts',
+            '**/coverage/**',
+            '**/output/**',
+            '**/storage/**',
+        ],
     },
     ...apify,
     prettier,
@@ -19,6 +27,7 @@ export default [
             },
             globals: {
                 ...globals.node,
+                ...globals.jest,
             },
         },
         plugins: {
@@ -26,6 +35,22 @@ export default [
         },
         rules: {
             'no-console': 0,
+        },
+    },
+    {
+        files: ['test/**/*.ts'],
+        languageOptions: {
+            parser: tsEslint.parser,
+            parserOptions: {
+                project: 'tsconfig.test.json',
+            },
+        },
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+            '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+            '@typescript-eslint/no-empty-function': 'off',
+            'no-restricted-globals': 'off',
+            'no-self-compare': 'off',
         },
     },
 ];

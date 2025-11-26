@@ -42,7 +42,6 @@ export class ApifyClientWrapper {
 
         console.log(`Actor run completed: ${run.id}`);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const stats = run.stats as any;
         return {
             id: run.id,
