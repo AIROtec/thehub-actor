@@ -1,0 +1,227 @@
+name: CI/CD Pipeline
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        name: Build and Lint
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run linter
+              run: npm run lint
+
+            - name: Check code formatting
+              run: npm run format:check
+
+            - name: Build project
+              run: npm run build
+
+    deploy:
+        name: Deploy to Apify
+        runs-on: ubuntu-latest
+        needs: test
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        timeout-minutes: 25
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build project
+              run: npm run build
+
+            - name: Get npm global prefix
+              id: npm-prefix
+              run: echo "dir=$(npm config get prefix)" >> $GITHUB_OUTPUT
+
+            - name: Cache Apify CLI
+              id: cache-apify-cli
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      ${{ steps.npm-prefix.outputs.dir }}/lib/node_modules/apify-cli
+                      ${{ steps.npm-prefix.outputs.dir }}/bin/apify
+                  key: ${{ runner.os }}-apify-cli-${{ hashFiles('**/package-lock.json') }}
+                  restore-keys: |
+                      ${{ runner.os }}-apify-cli-
+
+            - name: Install Apify CLI
+              if: steps.cache-apify-cli.outputs.cache-hit != 'true'
+              run: npm install -g apify-cli
+
+            - name: Ensure Apify CLI is in PATH
+              run: |
+                  NPM_PREFIX=$(npm config get prefix)
+                  echo "$NPM_PREFIX/bin" >> $GITHUB_PATH
+                  if ! command -v apify &> /dev/null; then
+                    npm install -g apify-cli
+                  fi
+
+            - name: Login to Apify
+              run: apify login -t ${{ secrets.APIFY_TOKEN }}
+
+            - name: Generate build tag
+              id: build-tag
+              run: |
+                  BUILD_TAG="$(date +%Y%m%d-%H%M%S)-$(git rev-parse --short=6 HEAD)"
+                  echo "tag=$BUILD_TAG" >> $GITHUB_OUTPUT
+                  echo "Generated build tag: $BUILD_TAG"
+
+            - name: Deploy to Apify with unique build tag
+              id: deploy
+              run: |
+                  set -e
+                  echo "Deploying with build tag: ${{ steps.build-tag.outputs.tag }}"
+
+                  apify push --build-tag "${{ steps.build-tag.outputs.tag }}" --wait-for-finish 300
+
+                  echo "✅ Successfully deployed to Apify (build not yet tagged as latest)"
+
+            - name: Get build ID from latest build
+              id: get-build-id
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+              run: |
+                  set -e
+                  echo "Fetching latest build ID..."
+
+                  BUILD_ID=$(npx tsx scripts/get-build-id-by-tag.ts | tail -1)
+
+                  if [ -z "$BUILD_ID" ]; then
+                    echo "❌ Error: Could not retrieve build ID"
+                    exit 1
+                  fi
+
+                  echo "build_id=$BUILD_ID" >> $GITHUB_OUTPUT
+                  echo "Successfully retrieved Build ID: $BUILD_ID"
+
+            - name: Run E2E tests on deployed build
+              id: e2e-test
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+              run: |
+                  set -e
+                  echo "Running E2E tests with build tag: ${{ steps.build-tag.outputs.tag }}"
+
+                  # Run apify call and capture output (disable set -e temporarily to see errors)
+                  set +e
+                  OUTPUT=$(apify call thehub-jobs-scraper \
+                    --input '{"countries": ["FI"], "maxRequestsPerCrawl": 3}' \
+                    --build "${{ steps.build-tag.outputs.tag }}" \
+                    2>&1)
+                  CALL_EXIT_CODE=$?
+                  set -e
+
+                  echo "$OUTPUT"
+
+                  if [ $CALL_EXIT_CODE -ne 0 ]; then
+                    echo "Error: apify call failed with exit code $CALL_EXIT_CODE"
+                    exit 1
+                  fi
+
+                  # Extract dataset ID from output (from export results URL)
+                  DATASET_ID=$(echo "$OUTPUT" | grep -o 'datasets/[a-zA-Z0-9]*' | sed 's|datasets/||' | head -1)
+
+                  if [ -z "$DATASET_ID" ]; then
+                    echo "Error: Could not extract dataset ID from Actor run"
+                    echo "$OUTPUT"
+                    exit 1
+                  fi
+
+                  echo "dataset_id=$DATASET_ID" >> $GITHUB_OUTPUT
+                  echo "E2E test completed with dataset: $DATASET_ID"
+              timeout-minutes: 15
+
+            - name: Validate E2E results
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+                  DATASET_ID: ${{ steps.e2e-test.outputs.dataset_id }}
+              run: |
+                  echo "Validating E2E results from dataset: $DATASET_ID"
+                  npx tsx scripts/validate-e2e-run.ts "$DATASET_ID"
+
+            - name: Tag build as latest (on success)
+              if: success()
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+                  BUILD_ID: ${{ steps.get-build-id.outputs.build_id }}
+                  BUILD_TAG: ${{ steps.build-tag.outputs.tag }}
+              run: |
+                  echo "E2E tests passed! Promoting build to 'latest'"
+                  echo "Build ID: $BUILD_ID"
+                  echo "Build TAG: $BUILD_TAG"
+
+                  if [ -z "$BUILD_ID" ]; then
+                    echo "❌ Error: BUILD_ID is empty or missing"
+                    echo "Cannot tag build as latest without a valid build ID"
+                    exit 1
+                  fi
+
+                  if [ -z "$BUILD_TAG" ]; then
+                    echo "❌ Error: BUILD_TAG is empty or missing"
+                    echo "Cannot tag build as latest without a valid build tag"
+                    exit 1
+                  fi
+
+                  npx tsx scripts/tag-build-as-latest.ts "$BUILD_ID" "$BUILD_TAG"
+                  echo "🎉 Build $BUILD_ID (tag: $BUILD_TAG) is now tagged as 'latest'"
+
+            - name: Delete failed build (on failure)
+              if: failure()
+              env:
+                  APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+                  BUILD_ID: ${{ steps.get-build-id.outputs.build_id }}
+              run: |
+                  echo "E2E tests or validation failed. Cleaning up failed build."
+                  echo "Build ID: $BUILD_ID"
+
+                  if [ -z "$BUILD_ID" ]; then
+                    echo "❌ Error: BUILD_ID is empty or missing"
+                    echo "Cannot delete build without a valid build ID"
+                    echo "This likely means the deployment step failed before generating a build"
+                    exit 1
+                  fi
+
+                  npx tsx scripts/delete-build.ts "$BUILD_ID"
+                  echo "🗑️  Failed build $BUILD_ID has been deleted from Apify"
+
+            - name: Upload E2E validation logs
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: e2e-validation-logs
+                  path: |
+                      *.log
+                  retention-days: 7

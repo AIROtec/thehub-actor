@@ -58,9 +58,10 @@ apify push                     # Deploy Actor to Apify platform
 
 ## Key Dependencies
 
-- **apify** (^3.4.2) - Apify SDK for platform integration
-- **crawlee** (^3.13.8) - Web scraping framework (CheerioCrawler)
-- **cheerio** (^1.0.0) - HTML parsing for __NUXT__ extraction
+- **apify** - Apify SDK for platform integration
+- **crawlee** - Web scraping framework (CheerioCrawler)
+- **cheerio** - HTML parsing for __NUXT__ extraction
+- **husky** - Git hooks (pre-commit runs lint/format)
 
 ## Important Patterns
 
@@ -112,6 +113,10 @@ Local development storage:
 - No individual job API - must scrape HTML for full descriptions
 - Rate limiting: unknown, recommend delays between requests
 - `countryCode=REMOTE` returns empty - use `isRemote=true` filter instead
+
+## Free Tier Behavior
+
+When running on Apify free tier (`userIsPaying=false`), the actor limits to 50 items max to prevent overuse.
 
 ## Safety and Permissions
 

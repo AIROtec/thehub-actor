@@ -8,13 +8,14 @@
     },
     "dependencies": {
         "apify": "^3.4.2",
-        "crawlee": "^3.13.8",
-        "cheerio": "^1.0.0"
+        "cheerio": "^1.0.0",
+        "crawlee": "^3.13.8"
     },
     "devDependencies": {
         "@apify/eslint-config": "^1.0.0",
         "@apify/tsconfig": "^0.1.1",
         "@types/node": "^22.15.32",
+        "apify-client": "^2.19.0",
         "dotenv-cli": "^11.0.0",
         "eslint": "^9.29.0",
         "eslint-config-prettier": "^10.1.5",
