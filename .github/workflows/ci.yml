@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
     test:
-        name: Build and Lint
+        name: Build, Lint, and Test
         runs-on: ubuntu-latest
 
         steps:
@@ -38,6 +38,9 @@ jobs:
 
             - name: Build project
               run: npm run build
+
+            - name: Run unit tests with coverage
+              run: npm run test:unit -- --coverage
 
     deploy:
         name: Deploy to Apify
