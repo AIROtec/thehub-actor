@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-    type JobOutput,
-    validateJobOutputSchema,
-    validateTestCaseHasValues,
-} from '../helpers/schema-validator.js';
+import { type JobOutput, validateJobOutputSchema, validateTestCaseHasValues } from '../helpers/schema-validator.js';
 
 describe('Schema Validation', () => {
     const validJobData: JobOutput = {
