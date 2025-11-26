@@ -36,9 +36,6 @@ if (isFreeTier && (finalMaxRequests === 0 || finalMaxRequests > FREE_TIER_ITEM_L
     finalMaxRequests = FREE_TIER_ITEM_LIMIT;
 }
 
-// Track processed jobs
-const processedJobIds = new Set<string>();
-
 let startUrls: { url: string; label?: string; userData?: Record<string, unknown> }[] = [];
 
 if (finalJobUrl) {
@@ -132,6 +129,6 @@ const crawler = new CheerioCrawler(crawlerOptions);
 
 await crawler.run(startUrls);
 
-log.info(`Crawl completed. Processed ${processedJobIds.size} jobs`);
+log.info('Crawl completed');
 
 await Actor.exit();
