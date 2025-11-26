@@ -17,7 +17,11 @@ const FREE_TIER_ITEM_LIMIT = 50;
 await Actor.init();
 
 // Read input configuration
-const { jobUrl: inputJobUrl, countries = [...COUNTRY_CODES], maxRequestsPerCrawl = 0 } = (await Actor.getInput<Input>()) ?? {};
+const {
+    jobUrl: inputJobUrl,
+    countries = [...COUNTRY_CODES],
+    maxRequestsPerCrawl = 0,
+} = (await Actor.getInput<Input>()) ?? {};
 
 // Environment variable overrides
 const envJobUrl = process.env.JOB_URL;

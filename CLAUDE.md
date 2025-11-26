@@ -60,7 +60,7 @@ apify push                     # Deploy Actor to Apify platform
 
 - **apify** - Apify SDK for platform integration
 - **crawlee** - Web scraping framework (CheerioCrawler)
-- **cheerio** - HTML parsing for __NUXT__ extraction
+- **cheerio** - HTML parsing for **NUXT** extraction
 - **husky** - Git hooks (pre-commit runs lint/format)
 
 ## Important Patterns
@@ -68,18 +68,23 @@ apify push                     # Deploy Actor to Apify platform
 ### ESM Module System
 
 Uses ES modules. Always use `.js` extensions in imports:
+
 ```typescript
 import { router } from './routes.js'; // Correct
 ```
 
-### __NUXT__ Extraction
+### **NUXT** Extraction
 
 TheHub.io embeds job data as an IIFE in the HTML:
+
 ```html
-<script>window.__NUXT__=(function(a,b,c...){return {...}}("val1","val2",...))</script>
+<script>
+    window.__NUXT__=(function(a,b,c...){return {...}}("val1","val2",...))
+</script>
 ```
 
 The extractor uses `eval()` to execute this IIFE and extract the job data:
+
 ```typescript
 const nuxtData = eval(nuxtCode) as NuxtState;
 const job = nuxtData.state.jobs.job;
@@ -92,11 +97,13 @@ Supported country codes: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (No
 ## Testing Environment Variables
 
 **MAX_PAGES_TEST** - Quick E2E workflow testing:
+
 ```bash
 MAX_PAGES_TEST=3 npm run start:dev
 ```
 
 **JOB_URL** - Test scraping a single job:
+
 ```bash
 JOB_URL="https://thehub.io/jobs/abc123" npm run start:dev
 ```
@@ -104,6 +111,7 @@ JOB_URL="https://thehub.io/jobs/abc123" npm run start:dev
 ## Storage Locations
 
 Local development storage:
+
 - `storage/datasets/` - Scraped job data output
 - `storage/key_value_stores/default/` - Input and other records
 
@@ -121,11 +129,13 @@ When running on Apify free tier (`userIsPaying=false`), the actor limits to 50 i
 ## Safety and Permissions
 
 ### Allowed without asking
+
 - Read/write to Apify storage
 - Run locally with npm scripts
 - Fetch from TheHub.io API and website
 
 ### Ask user first
+
 - npm package installations
 - `apify push` (deployment to cloud)
 - Dockerfile changes
