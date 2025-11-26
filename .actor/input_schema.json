@@ -14,15 +14,15 @@
         "countries": {
             "title": "Countries",
             "type": "array",
-            "description": "Select one or more countries to scrape jobs from. Leave empty to scrape all Nordic countries.",
+            "description": "Select one or more regions to scrape jobs from. Leave empty to scrape all regions.",
             "editor": "select",
             "prefill": [],
-            "default": ["FI", "SE", "DK", "NO", "IS"],
+            "default": [],
             "minItems": 0,
             "items": {
                 "type": "string",
-                "enum": ["FI", "SE", "DK", "NO", "IS", "EU"],
-                "enumTitles": ["Finland", "Sweden", "Denmark", "Norway", "Iceland", "All European"]
+                "enum": ["FI", "SE", "DK", "NO", "IS", "EU", "REMOTE"],
+                "enumTitles": ["Finland", "Sweden", "Denmark", "Norway", "Iceland", "Other Europe", "Remote"]
             }
         },
         "maxRequestsPerCrawl": {

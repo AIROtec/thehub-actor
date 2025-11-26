@@ -13,11 +13,11 @@ For each job listing, the scraper extracts:
 
 ## Input Parameters
 
-| Parameter             | Type    | Description                                                                                                                                                      |
-| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `jobUrl`              | string  | URL of a single job to scrape (e.g., `https://thehub.io/jobs/abc123`). When provided, only this job will be scraped.                                             |
-| `countries`           | array   | Countries to scrape jobs from: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (All European). Default: all Nordic countries. |
-| `maxRequestsPerCrawl` | integer | Maximum number of jobs to scrape. Set to `0` for unlimited. Default: `0`.                                                                                        |
+| Parameter             | Type    | Description                                                                                                                                                                                |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `jobUrl`              | string  | URL of a single job to scrape (e.g., `https://thehub.io/jobs/abc123`). When provided, only this job will be scraped.                                                                       |
+| `countries`           | array   | Regions to scrape jobs from: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (Other Europe), `REMOTE` (Remote only). Leave empty to scrape all regions. |
+| `maxRequestsPerCrawl` | integer | Maximum number of jobs to scrape. Set to `0` for unlimited. Default: `0`.                                                                                                                  |
 
 ### Example Input
 
@@ -70,7 +70,7 @@ Each job is saved as a JSON object in the dataset:
     },
     "equity": "undisclosed",
     "jobRole": "fullstackdeveloper",
-    "jobPositionTypes": ["5b8e46b3853f039706b6ea70"],
+    "jobPositionTypes": ["Full-time"],
     "views": {
         "week": 537,
         "total": 537
@@ -85,36 +85,19 @@ Each job is saved as a JSON object in the dataset:
 
 ## Job Position Types
 
-The `jobPositionTypes` array contains IDs that map to:
+The `jobPositionTypes` array contains human-readable labels:
 
-| ID                         | Type       |
-| -------------------------- | ---------- |
-| `5b8e46b3853f039706b6ea70` | Full-time  |
-| `5b8e46b3853f039706b6ea71` | Part-time  |
-| `5b8e46b3853f039706b6ea73` | Internship |
-| `5b8e46b3853f039706b6ea75` | Freelance  |
-| `5b8e46b3853f039706b6ea74` | Contract   |
-| `5b8e46b3853f039706b6ea72` | Cofounder  |
-
-## Typical Job Counts by Country
-
-| Country           | Approximate Jobs |
-| ----------------- | ---------------- |
-| Denmark (DK)      | ~400             |
-| Sweden (SE)       | ~170             |
-| Norway (NO)       | ~90              |
-| Finland (FI)      | ~55              |
-| EU (all European) | ~90              |
-| Iceland (IS)      | ~1               |
+- Full-time
+- Part-time
+- Internship
+- Freelance
+- Cofounder
+- Student
+- Advisory board
 
 ## Free Tier Limitation
 
 When running on the Apify free tier, the scraper is limited to **50 jobs maximum** to prevent excessive resource usage. Upgrade to a paid plan for unlimited scraping.
-
-## Performance
-
-- **Speed**: ~30 jobs per minute with high concurrency
-- **Memory**: 256 MB - 1024 MB
 
 ## Use Cases
 

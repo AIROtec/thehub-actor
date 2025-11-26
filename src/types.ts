@@ -2,8 +2,28 @@
  * TypeScript types for TheHub.io API and data structures
  */
 
-export const COUNTRY_CODES = ['FI', 'SE', 'DK', 'NO', 'IS', 'EU'] as const;
+export const COUNTRY_CODES = ['FI', 'SE', 'DK', 'NO', 'IS', 'EU', 'REMOTE'] as const;
 export type CountryCode = (typeof COUNTRY_CODES)[number];
+
+/**
+ * Mapping of job position type IDs to human-readable labels
+ */
+export const JOB_POSITION_TYPE_MAP: Record<string, string> = {
+    '5b8e46b3853f039706b6ea70': 'Full-time',
+    '5b8e46b3853f039706b6ea71': 'Part-time',
+    '5b8e46b3853f039706b6ea72': 'Student',
+    '5b8e46b3853f039706b6ea73': 'Internship',
+    '5b8e46b3853f039706b6ea74': 'Cofounder',
+    '5b8e46b3853f039706b6ea75': 'Freelance',
+    '62e28180d8cca695ee60c98e': 'Advisory board',
+};
+
+/**
+ * Translate job position type IDs to human-readable labels
+ */
+export function translateJobPositionTypes(ids: string[]): string[] {
+    return ids.map((id) => JOB_POSITION_TYPE_MAP[id] || id);
+}
 
 /**
  * Job listing from the API (basic info)

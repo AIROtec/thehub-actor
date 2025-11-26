@@ -8,6 +8,7 @@ import { createCheerioRouter } from 'crawlee';
 import { buildImageUrl } from './api.js';
 import { extractJobFromHtml } from './nuxtExtractor.js';
 import type { JobOutput } from './types.js';
+import { translateJobPositionTypes } from './types.js';
 
 export const router = createCheerioRouter();
 
@@ -64,7 +65,7 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
             salaryRange: job.salaryRange,
             equity: job.equity,
             jobRole: job.jobRole,
-            jobPositionTypes: job.jobPositionTypes,
+            jobPositionTypes: translateJobPositionTypes(job.jobPositionTypes),
             views: job.views,
             link: job.link || undefined, // Convert empty string to undefined
             createdAt: job.createdAt,

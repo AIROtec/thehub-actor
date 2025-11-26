@@ -19,9 +19,12 @@ await Actor.init();
 // Read input configuration
 const {
     jobUrl: inputJobUrl,
-    countries = [...COUNTRY_CODES],
+    countries: inputCountries = [],
     maxRequestsPerCrawl = 0,
 } = (await Actor.getInput<Input>()) ?? {};
+
+// Use all countries if none selected
+const countries = inputCountries.length > 0 ? inputCountries : [...COUNTRY_CODES];
 
 // Environment variable overrides
 const envJobUrl = process.env.JOB_URL;
@@ -59,10 +62,6 @@ if (finalJobUrl) {
     log.info(`Fetching jobs for countries: ${countries.join(', ')}`);
 
     const validCountries = countries.filter((c): c is CountryCode => COUNTRY_CODES.includes(c as CountryCode));
-
-    if (validCountries.length === 0) {
-        throw new Error(`No valid country codes provided. Valid codes are: ${COUNTRY_CODES.join(', ')}`);
-    }
 
     // Fetch jobs with optional limit
     const jobs = await fetchAllJobs(validCountries, finalMaxRequests);

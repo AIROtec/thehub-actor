@@ -11,10 +11,17 @@ const PAGE_SIZE = 15; // Fixed by TheHub API
 
 /**
  * Fetch job listings for a specific country and page
+ * Note: REMOTE uses isRemote=true instead of countryCode
  */
 export async function fetchJobsPage(countryCode: CountryCode, page: number): Promise<JobsApiResponse> {
     const url = new URL(`${BASE_URL}/jobsandfeatured`);
-    url.searchParams.set('countryCode', countryCode);
+
+    if (countryCode === 'REMOTE') {
+        url.searchParams.set('isRemote', 'true');
+    } else {
+        url.searchParams.set('countryCode', countryCode);
+    }
+
     url.searchParams.set('page', page.toString());
     url.searchParams.set('sorting', 'mostPopular');
 
