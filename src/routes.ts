@@ -61,11 +61,12 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
             location: job.location,
             isRemote: job.isRemote,
             salary: job.salary,
+            salaryRange: job.salaryRange,
             equity: job.equity,
             jobRole: job.jobRole,
             jobPositionTypes: job.jobPositionTypes,
             views: job.views,
-            link: job.link,
+            link: job.link || undefined, // Convert empty string to undefined
             createdAt: job.createdAt,
             publishedAt: job.publishedAt,
             expirationDate: job.expirationDate,

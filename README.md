@@ -6,7 +6,7 @@ Scrape job listings from [TheHub.io](https://thehub.io), the leading Nordic star
 
 For each job listing, the scraper extracts:
 
-- **Job details**: Title, description (full HTML), salary, equity, role type
+- **Job details**: Title, description (full HTML), salary, salary range (min/max when available), equity, role type
 - **Company info**: Name, website, employee count, founding year, company description, logo
 - **Location**: Country, city, full address, remote work status
 - **Metadata**: Publication date, expiration date, view counts, job position types
@@ -63,7 +63,11 @@ Each job is saved as a JSON object in the dataset:
         "country": "Finland"
     },
     "isRemote": false,
-    "salary": "competitive",
+    "salary": "range",
+    "salaryRange": {
+        "min": 5500,
+        "max": 6500
+    },
     "equity": "undisclosed",
     "jobRole": "fullstackdeveloper",
     "jobPositionTypes": ["5b8e46b3853f039706b6ea70"],

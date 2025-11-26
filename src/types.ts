@@ -48,6 +48,10 @@ export interface JobFull {
     description: string;
     descriptionLength?: number;
     salary: string;
+    salaryRange?: {
+        min: number;
+        max: number;
+    };
     equity: string;
     status: string;
     jobRole: string;
@@ -166,6 +170,10 @@ export interface JobOutput {
     };
     isRemote: boolean;
     salary: string;
+    salaryRange?: {
+        min: number;
+        max: number;
+    };
     equity: string;
     jobRole: string;
     jobPositionTypes: string[];
