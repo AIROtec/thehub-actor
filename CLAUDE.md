@@ -52,7 +52,7 @@ apify push                     # Deploy Actor to Apify platform
 ### Input/Output Configuration
 
 - **.actor/actor.json** - Actor metadata and configuration
-- **.actor/input_schema.json** - Input parameters (countries, jobUrl, maxRequestsPerCrawl)
+- **.actor/input_schema.json** - Input parameters (regions, jobUrl, maxRequestsPerCrawl)
 - **.actor/output_schema.json** - Output structure specification
 - **.actor/dataset_schema.json** - Dataset display configuration
 

@@ -160,7 +160,7 @@ export interface NuxtState {
  */
 export interface Input {
     jobUrl?: string;
-    countries?: CountryCode[];
+    regions?: CountryCode[];
     maxRequestsPerCrawl?: number;
 }
 

@@ -19,12 +19,12 @@ await Actor.init();
 // Read input configuration
 const {
     jobUrl: inputJobUrl,
-    countries: inputCountries = [],
+    regions: inputRegions = [],
     maxRequestsPerCrawl = 0,
 } = (await Actor.getInput<Input>()) ?? {};
 
-// Use all countries if none selected
-const countries = inputCountries.length > 0 ? inputCountries : [...COUNTRY_CODES];
+// Use all regions if none selected
+const regions = inputRegions.length > 0 ? inputRegions : [...COUNTRY_CODES];
 
 // Environment variable overrides
 const envJobUrl = process.env.JOB_URL;
@@ -58,13 +58,13 @@ if (finalJobUrl) {
         },
     ];
 } else {
-    // Fetch all jobs from API for selected countries
-    log.info(`Fetching jobs for countries: ${countries.join(', ')}`);
+    // Fetch all jobs from API for selected regions
+    log.info(`Fetching jobs for regions: ${regions.join(', ')}`);
 
-    const validCountries = countries.filter((c): c is CountryCode => COUNTRY_CODES.includes(c as CountryCode));
+    const validRegions = regions.filter((c): c is CountryCode => COUNTRY_CODES.includes(c as CountryCode));
 
     // Fetch jobs with optional limit
-    const jobs = await fetchAllJobs(validCountries, finalMaxRequests);
+    const jobs = await fetchAllJobs(validRegions, finalMaxRequests);
 
     log.info(`Found ${jobs.length} jobs to scrape`);
 

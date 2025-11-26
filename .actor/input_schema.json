@@ -11,8 +11,8 @@
             "pattern": "^https://thehub\\.io/jobs/.+$",
             "nullable": true
         },
-        "countries": {
-            "title": "Countries",
+        "regions": {
+            "title": "Regions",
             "type": "array",
             "description": "Select one or more regions to scrape jobs from. Leave empty to scrape all regions.",
             "editor": "select",

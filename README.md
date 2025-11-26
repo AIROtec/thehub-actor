@@ -16,14 +16,14 @@ For each job listing, the scraper extracts:
 | Parameter             | Type    | Description                                                                                                                                                                                |
 | --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `jobUrl`              | string  | URL of a single job to scrape (e.g., `https://thehub.io/jobs/abc123`). When provided, only this job will be scraped.                                                                       |
-| `countries`           | array   | Regions to scrape jobs from: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (Other Europe), `REMOTE` (Remote only). Leave empty to scrape all regions. |
+| `regions`             | array   | Regions to scrape jobs from: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (Other Europe), `REMOTE` (Remote only). Leave empty to scrape all regions. |
 | `maxRequestsPerCrawl` | integer | Maximum number of jobs to scrape. Set to `0` for unlimited. Default: `0`.                                                                                                                  |
 
 ### Example Input
 
 ```json
 {
-    "countries": ["FI", "SE"],
+    "regions": ["FI", "SE"],
     "maxRequestsPerCrawl": 100
 }
 ```
