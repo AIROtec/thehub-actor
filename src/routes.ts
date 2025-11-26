@@ -2,7 +2,8 @@
  * Request handlers for TheHub.io job scraper
  */
 
-import { createCheerioRouter, Dataset } from 'crawlee';
+import { Actor } from 'apify';
+import { createCheerioRouter } from 'crawlee';
 
 import { buildImageUrl } from './api.js';
 import { extractJobFromHtml } from './nuxtExtractor.js';
@@ -26,10 +27,10 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
 
         if (!job) {
             log.error(`Failed to extract job data from ${url}`);
-            await Dataset.pushData({
+            await Actor.pushData({
                 url,
                 jobId,
-                error: 'Failed to extract __NUXT__ job data',
+                error: 'Failed to extract job data',
                 timestamp: new Date().toISOString(),
             });
             return;
@@ -71,12 +72,12 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
             scrapedAt: new Date().toISOString(),
         };
 
-        await Dataset.pushData(jobOutput);
+        await Actor.pushData(jobOutput, 'job-scraped');
 
         log.info(`Successfully extracted: "${job.title}" at ${job.company.name}`);
     } catch (error) {
         log.error(`Error processing job ${url}: ${error}`);
-        await Dataset.pushData({
+        await Actor.pushData({
             url,
             jobId,
             error: String(error),
