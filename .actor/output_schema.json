@@ -1,84 +1,13 @@
 {
     "actorOutputSchemaVersion": 1,
-    "fields": {
-        "id": {
+    "title": "TheHub.io Jobs Output",
+    "description": "Job listings scraped from TheHub.io Nordic startup job board",
+    "type": "object",
+    "properties": {
+        "jobs": {
             "type": "string",
-            "description": "TheHub job ID"
-        },
-        "key": {
-            "type": "string",
-            "description": "URL-friendly job key/slug"
-        },
-        "title": {
-            "type": "string",
-            "description": "Job title"
-        },
-        "description": {
-            "type": "string",
-            "description": "Full job description (HTML)"
-        },
-        "company": {
-            "type": "object",
-            "description": "Company information"
-        },
-        "location": {
-            "type": "object",
-            "description": "Job location details"
-        },
-        "isRemote": {
-            "type": "boolean",
-            "description": "Whether the job is remote"
-        },
-        "salary": {
-            "type": "string",
-            "description": "Salary information"
-        },
-        "jobRole": {
-            "type": "string",
-            "description": "Job role category"
-        },
-        "views": {
-            "type": "object",
-            "description": "View statistics"
-        },
-        "link": {
-            "type": "string",
-            "description": "External application link"
-        },
-        "createdAt": {
-            "type": "string",
-            "description": "Job creation date"
-        },
-        "publishedAt": {
-            "type": "string",
-            "description": "Job publication date"
-        },
-        "expirationDate": {
-            "type": "string",
-            "description": "Job expiration date"
-        },
-        "scrapedAt": {
-            "type": "string",
-            "description": "When this data was scraped"
-        }
-    },
-    "views": {
-        "overview": {
-            "title": "Overview",
-            "transformation": {
-                "flatten": ["company", "location", "views"]
-            },
-            "display": {
-                "properties": {
-                    "title": { "label": "Title" },
-                    "company.name": { "label": "Company" },
-                    "location.locality": { "label": "City" },
-                    "location.country": { "label": "Country" },
-                    "isRemote": { "label": "Remote" },
-                    "salary": { "label": "Salary" },
-                    "views.total": { "label": "Total Views" }
-                }
-            }
+            "title": "Job Listings",
+            "template": "{{links.apiDefaultDatasetUrl}}/items?view=jobs"
         }
     }
 }
