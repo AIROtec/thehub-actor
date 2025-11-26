@@ -1,0 +1,25 @@
+# This file tells Git which files shouldn't be added to source control
+
+.DS_Store
+.idea
+.vscode
+.zed
+dist
+node_modules
+apify_storage
+storage
+
+# Added by Apify CLI
+.venv
+
+# Environment variables
+.env
+
+# Local development artifacts
+.claude/*
+!.claude/settings.json
+!.claude/*.sh
+.playwright-mcp
+
+# Test coverage
+coverage

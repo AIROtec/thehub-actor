@@ -1,0 +1,69 @@
+{
+    "actorSpecification": 1,
+    "views": {
+        "jobs": {
+            "title": "Jobs",
+            "description": "TheHub.io job listings",
+            "transformation": {
+                "fields": [
+                    "title",
+                    "company.name",
+                    "location.locality",
+                    "location.country",
+                    "isRemote",
+                    "salary",
+                    "jobRole",
+                    "views.total",
+                    "link",
+                    "publishedAt"
+                ],
+                "flatten": ["company", "location", "views"]
+            },
+            "display": {
+                "component": "table",
+                "properties": {
+                    "title": {
+                        "label": "Job Title",
+                        "format": "text"
+                    },
+                    "company.name": {
+                        "label": "Company",
+                        "format": "text"
+                    },
+                    "location.locality": {
+                        "label": "City",
+                        "format": "text"
+                    },
+                    "location.country": {
+                        "label": "Country",
+                        "format": "text"
+                    },
+                    "isRemote": {
+                        "label": "Remote",
+                        "format": "boolean"
+                    },
+                    "salary": {
+                        "label": "Salary",
+                        "format": "text"
+                    },
+                    "jobRole": {
+                        "label": "Role",
+                        "format": "text"
+                    },
+                    "views.total": {
+                        "label": "Views",
+                        "format": "number"
+                    },
+                    "link": {
+                        "label": "Apply Link",
+                        "format": "link"
+                    },
+                    "publishedAt": {
+                        "label": "Published",
+                        "format": "date"
+                    }
+                }
+            }
+        }
+    }
+}

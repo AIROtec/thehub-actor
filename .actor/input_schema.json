@@ -1,0 +1,36 @@
+{
+    "title": "TheHub.io Jobs Scraper",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "jobUrl": {
+            "title": "Individual Job URL",
+            "type": "string",
+            "description": "URL of a single job to scrape (e.g., https://thehub.io/jobs/abc123). When provided, country scraping will be skipped and only this job will be scraped. This can also be set via the JOB_URL environment variable.",
+            "editor": "textfield",
+            "pattern": "^https://thehub\\.io/jobs/.+$",
+            "nullable": true
+        },
+        "countries": {
+            "title": "Countries",
+            "type": "array",
+            "description": "Select one or more countries to scrape jobs from. Leave empty to scrape all Nordic countries.",
+            "editor": "select",
+            "prefill": [],
+            "default": ["FI", "SE", "DK", "NO", "IS"],
+            "minItems": 0,
+            "items": {
+                "type": "string",
+                "enum": ["FI", "SE", "DK", "NO", "IS", "EU"],
+                "enumTitles": ["Finland", "Sweden", "Denmark", "Norway", "Iceland", "All European"]
+            }
+        },
+        "maxRequestsPerCrawl": {
+            "title": "Max Requests per Crawl",
+            "type": "integer",
+            "description": "Maximum number of requests that can be made by this crawler. Set to 0 for unlimited crawling.",
+            "default": 0
+        }
+    },
+    "required": []
+}
