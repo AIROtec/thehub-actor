@@ -103,17 +103,6 @@ The `jobPositionTypes` array contains IDs that map to:
 | EU (all European) | ~90              |
 | Iceland (IS)      | ~1               |
 
-## Pricing
-
-This Actor uses **pay-per-event** pricing. You are charged per successfully scraped job:
-
-| Event         | Description                             | Price             |
-| ------------- | --------------------------------------- | ----------------- |
-| `job-scraped` | Each successfully extracted job listing | €5 per 1,000 jobs |
-
-- **Cost example**: Scraping all ~800 Nordic jobs costs approximately €4
-- Failed requests (errors, 404s) are **not charged**
-
 ## Performance
 
 - **Speed**: ~30 jobs per minute with high concurrency
