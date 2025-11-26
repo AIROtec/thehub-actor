@@ -72,7 +72,7 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
             scrapedAt: new Date().toISOString(),
         };
 
-        await Actor.pushData(jobOutput, 'job-scraped');
+        await Actor.pushData(jobOutput);
 
         log.info(`Successfully extracted: "${job.title}" at ${job.company.name}`);
     } catch (error) {
