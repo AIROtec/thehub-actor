@@ -1,7 +1,7 @@
 /**
- * Utility to extract __NUXT__ data from TheHub.io job pages
+ * Utility to extract __NUXT__ data from thehub.io job pages
  *
- * TheHub.io uses Nuxt.js SSR and embeds the full job data in the HTML
+ * thehub.io uses Nuxt.js SSR and embeds the full job data in the HTML
  * as an IIFE (Immediately Invoked Function Expression).
  */
 

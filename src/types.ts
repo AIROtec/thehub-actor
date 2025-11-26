@@ -1,5 +1,5 @@
 /**
- * TypeScript types for TheHub.io API and data structures
+ * TypeScript types for thehub.io API and data structures
  */
 
 export const COUNTRY_CODES = ['FI', 'SE', 'DK', 'NO', 'IS', 'EU', 'REMOTE'] as const;

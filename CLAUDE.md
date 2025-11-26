@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is an Apify Actor built with TypeScript and Crawlee (CheerioCrawler) for scraping job listings from TheHub.io, the Nordic startup job board. It uses a combination of REST API calls and SSR data extraction.
+This is an Apify Actor built with TypeScript and Crawlee (CheerioCrawler) for scraping job listings from thehub.io, the Nordic startup job board. It uses a combination of REST API calls and SSR data extraction.
 
 ## Commands
 
@@ -45,7 +45,7 @@ apify push                     # Deploy Actor to Apify platform
 
 - **src/main.ts** - Entry point. Reads input, fetches job listings from API, configures CheerioCrawler
 - **src/routes.ts** - Request handlers for job-detail pages
-- **src/api.ts** - TheHub.io API functions (pagination, fetching)
+- **src/api.ts** - thehub.io API functions (pagination, fetching)
 - **src/nuxtExtractor.ts** - Extracts `__NUXT__` data from HTML using eval
 - **src/types.ts** - TypeScript interfaces for all data structures
 
@@ -75,7 +75,7 @@ import { router } from './routes.js'; // Correct
 
 ### **NUXT** Extraction
 
-TheHub.io embeds job data as an IIFE in the HTML:
+thehub.io embeds job data as an IIFE in the HTML:
 
 ```html
 <script>
@@ -132,7 +132,7 @@ When running on Apify free tier (`userIsPaying=false`), the actor limits to 50 i
 
 - Read/write to Apify storage
 - Run locally with npm scripts
-- Fetch from TheHub.io API and website
+- Fetch from thehub.io API and website
 
 ### Ask user first
 

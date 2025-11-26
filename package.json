@@ -2,7 +2,7 @@
     "name": "the-hub-jobs-scraper",
     "version": "0.0.1",
     "type": "module",
-    "description": "Apify Actor for scraping job listings from TheHub.io Nordic startup job board.",
+    "description": "Apify Actor for scraping job listings from thehub.io Nordic startup job board.",
     "engines": {
         "node": ">=18.0.0"
     },

@@ -1,8 +1,8 @@
-# TheHub.io Jobs API Documentation
+# thehub.io Jobs API Documentation
 
 ## Overview
 
-TheHub.io provides a REST API for fetching job listings. **No web scraping is required** - you can fetch jobs directly via HTTP requests.
+thehub.io provides a REST API for fetching job listings. **No web scraping is required** - you can fetch jobs directly via HTTP requests.
 
 ## Base URL
 

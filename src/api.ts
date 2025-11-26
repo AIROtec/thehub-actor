@@ -1,5 +1,5 @@
 /**
- * API utilities for fetching TheHub.io job listings
+ * API utilities for fetching thehub.io job listings
  */
 
 import { log } from 'crawlee';

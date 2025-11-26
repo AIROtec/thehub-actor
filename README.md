@@ -1,6 +1,6 @@
-# TheHub.io Jobs Scraper
+# thehub.io Jobs Scraper
 
-Scrape job listings from [TheHub.io](https://thehub.io), the leading Nordic startup job board. Extract comprehensive job data including company details, salary information, location, and full job descriptions.
+Scrape job listings from [thehub.io](https://thehub.io), the leading Nordic startup job board. Extract comprehensive job data including company details, salary information, location, and full job descriptions.
 
 ## What data can you get?
 
@@ -109,4 +109,4 @@ When running on the Apify free tier, the scraper is limited to **50 jobs maximum
 
 ## Legal & Compliance
 
-This Actor scrapes publicly available job listings from TheHub.io. Please review TheHub.io's terms of service before use and ensure compliance with applicable data protection regulations.
+This Actor scrapes publicly available job listings from thehub.io. Please review thehub.io's terms of service before use and ensure compliance with applicable data protection regulations.

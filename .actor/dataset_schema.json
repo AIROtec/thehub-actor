@@ -3,7 +3,7 @@
     "views": {
         "jobs": {
             "title": "Jobs",
-            "description": "TheHub.io job listings",
+            "description": "thehub.io job listings",
             "transformation": {
                 "fields": [
                     "title",

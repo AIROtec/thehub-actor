@@ -1,7 +1,7 @@
 /**
- * TheHub.io Jobs Scraper - Main entry point
+ * thehub.io Jobs Scraper - Main entry point
  *
- * Scrapes job listings from TheHub.io Nordic startup job board
+ * Scrapes job listings from thehub.io Nordic startup job board
  * using their REST API for listings and SSR extraction for full details.
  */
 

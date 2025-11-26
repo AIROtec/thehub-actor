@@ -1,5 +1,5 @@
 /**
- * Request handlers for TheHub.io job scraper
+ * Request handlers for thehub.io job scraper
  */
 
 import { Actor } from 'apify';
