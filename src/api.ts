@@ -61,7 +61,11 @@ export async function fetchAllJobsForCountry(countryCode: CountryCode, limit = 0
 
         totalPages = response.jobs.pages;
 
-        log.info(`Fetched page ${page}/${totalPages} for ${countryCode}: ${response.jobs.docs.length} jobs`);
+        const featuredCount = page === 1 ? (response.featuredJobs?.docs?.length ?? 0) : 0;
+        const regularCount = response.jobs.docs.length;
+        const pageTotal = regularCount + featuredCount;
+        const featuredInfo = featuredCount > 0 ? ` (${regularCount} regular + ${featuredCount} featured)` : '';
+        log.info(`Fetched page ${page}/${totalPages} for ${countryCode}: ${pageTotal} jobs${featuredInfo}`);
 
         // Stop early if we have enough jobs
         if (limit > 0 && allJobs.length >= limit) {
