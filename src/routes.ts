@@ -7,6 +7,7 @@ import { createCheerioRouter } from 'crawlee';
 
 import { buildImageUrl } from './api.js';
 import { extractJobFromHtml } from './nuxtExtractor.js';
+import { JobOutputSchema } from './schemas.js';
 import type { JobOutput } from './types.js';
 import { translateJobPositionTypes } from './types.js';
 
@@ -73,6 +74,18 @@ router.addHandler('job-detail', async ({ request, body, log }) => {
             expirationDate: job.expirationDate,
             scrapedAt: new Date().toISOString(),
         };
+
+        // Validate output against schema
+        const validation = JobOutputSchema.safeParse(jobOutput);
+        if (!validation.success) {
+            const errors = validation.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`);
+            log.warning(`Schema validation failed for job ${job.id}`, {
+                jobId: job.id,
+                title: job.title,
+                url,
+                errors,
+            });
+        }
 
         await Actor.pushData(jobOutput);
 

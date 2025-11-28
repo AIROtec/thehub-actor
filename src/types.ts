@@ -166,44 +166,6 @@ export interface Input {
 
 /**
  * Output data structure pushed to dataset
+ * Inferred from Zod schema - single source of truth
  */
-export interface JobOutput {
-    id: string;
-    key: string;
-    url: string;
-    title: string;
-    description: string;
-    company: {
-        id: string;
-        key: string;
-        name: string;
-        website: string;
-        numberOfEmployees: string;
-        founded: string;
-        whatWeDo?: string;
-        logoUrl?: string;
-    };
-    location: {
-        country: string;
-        locality: string;
-        address: string;
-    };
-    isRemote: boolean;
-    salary: string;
-    salaryRange?: {
-        min: number;
-        max: number;
-    };
-    equity: string;
-    jobRole: string;
-    jobPositionTypes: string[];
-    views: {
-        week: number;
-        total: number;
-    };
-    link?: string;
-    createdAt: string;
-    publishedAt: string;
-    expirationDate?: string;
-    scrapedAt: string;
-}
+export type { JobOutputValidated as JobOutput } from './schemas.js';
