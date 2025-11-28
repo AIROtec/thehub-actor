@@ -9,7 +9,7 @@ import { log } from '@crawlee/core';
 import { HttpCrawler, type HttpCrawlerOptions } from '@crawlee/http';
 import { Actor } from 'apify';
 
-import { fetchAllJobs } from './api.js';
+import { fetchJobsPage } from './api.js';
 import { router } from './routes.js';
 import { type Input, REGION_CODES, type RegionCode } from './types.js';
 
@@ -40,48 +40,8 @@ if (isFreeTier && (finalMaxRequests === 0 || finalMaxRequests > FREE_TIER_ITEM_L
     finalMaxRequests = FREE_TIER_ITEM_LIMIT;
 }
 
-let startUrls: { url: string; label?: string; userData?: Record<string, unknown> }[] = [];
-
-if (finalJobUrl) {
-    // Single job mode
-    const jobIdMatch = finalJobUrl.match(/\/jobs\/([a-zA-Z0-9-]+)/);
-    const jobId = jobIdMatch?.[1] || 'unknown';
-
-    log.info(
-        `Scraping single job from ${envJobUrl ? 'JOB_URL environment variable' : 'jobUrl input parameter'}: ${finalJobUrl}`,
-    );
-
-    startUrls = [
-        {
-            url: finalJobUrl,
-            label: 'job-detail',
-            userData: { jobId },
-        },
-    ];
-} else {
-    // Fetch all jobs from API for selected regions
-    log.info(`Fetching jobs for regions: ${regions.join(', ')}`);
-
-    const validRegions = regions.filter((r): r is RegionCode => REGION_CODES.includes(r as RegionCode));
-
-    // Fetch jobs with optional limit
-    const jobs = await fetchAllJobs(validRegions, finalMaxRequests);
-
-    log.info(`Found ${jobs.length} jobs to scrape`);
-
-    // Build start URLs for each job
-    startUrls = jobs.map((job) => ({
-        url: `https://thehub.io/jobs/${job.id}`,
-        label: 'job-detail',
-        userData: {
-            jobId: job.id,
-            basicInfo: {
-                title: job.title,
-                company: job.company.name,
-            },
-        },
-    }));
-}
+// Determine if single job mode
+const isSingleJobMode = Boolean(finalJobUrl);
 
 // Log max requests info
 if (process.env.MAX_PAGES_TEST) {
@@ -127,7 +87,79 @@ if (finalMaxRequests > 0) {
 
 const crawler = new HttpCrawler(crawlerOptions);
 
-await crawler.run(startUrls);
+if (isSingleJobMode) {
+    // Single job mode - simple run
+    const jobIdMatch = finalJobUrl!.match(/\/jobs\/([a-zA-Z0-9-]+)/);
+    const jobId = jobIdMatch?.[1] || 'unknown';
+
+    log.info(
+        `Scraping single job from ${envJobUrl ? 'JOB_URL environment variable' : 'jobUrl input parameter'}: ${finalJobUrl}`,
+    );
+
+    await crawler.run([
+        {
+            url: finalJobUrl!,
+            label: 'job-detail',
+            userData: { jobId },
+        },
+    ]);
+} else {
+    // Multi-job mode - stream jobs to crawler as they're fetched
+    log.info(`Fetching jobs for regions: ${regions.join(', ')}`);
+
+    const validRegions = regions.filter((r): r is RegionCode => REGION_CODES.includes(r as RegionCode));
+    const seenJobIds = new Set<string>();
+
+    // Fetch first pages from all regions to get initial jobs
+    const firstPages = await Promise.all(
+        validRegions.map(async (region) => {
+            const response = await fetchJobsPage(region, 1);
+            return { region, response, totalPages: response.jobs.pages };
+        }),
+    );
+
+    // Add initial jobs and start crawler
+    const initialRequests = firstPages.flatMap(({ response }) => {
+        const jobs = [...response.jobs.docs, ...(response.featuredJobs?.docs ?? [])];
+        return jobs
+            .filter((job) => !seenJobIds.has(job.id) && seenJobIds.add(job.id))
+            .map((job) => ({
+                url: `https://thehub.io/jobs/${job.id}`,
+                label: 'job-detail' as const,
+                userData: { jobId: job.id },
+            }));
+    });
+
+    log.info(`Starting crawler with ${initialRequests.length} initial jobs`);
+    const crawlerPromise = crawler.run(initialRequests);
+
+    // Fetch remaining pages in parallel and add to crawler
+    await Promise.all(
+        firstPages
+            .filter(({ totalPages }) => totalPages > 1)
+            .map(async ({ region, totalPages }) => {
+                const pages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+                const responses = await Promise.all(pages.map(async (p) => fetchJobsPage(region, p)));
+
+                const requests = responses
+                    .flatMap((r) => r.jobs.docs)
+                    .filter((job) => !seenJobIds.has(job.id) && seenJobIds.add(job.id))
+                    .map((job) => ({
+                        url: `https://thehub.io/jobs/${job.id}`,
+                        label: 'job-detail' as const,
+                        userData: { jobId: job.id },
+                    }));
+
+                if (requests.length > 0) {
+                    await crawler.addRequests(requests);
+                    log.info(`Added ${requests.length} more jobs from ${region}`);
+                }
+            }),
+    );
+
+    log.info(`Queued ${seenJobIds.size} unique jobs total`);
+    await crawlerPromise;
+}
 
 log.info('Crawl completed');
 
