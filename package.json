@@ -7,9 +7,9 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
+        "@crawlee/core": "^3.13.8",
+        "@crawlee/http": "^3.13.8",
         "apify": "^3.4.2",
-        "cheerio": "^1.0.0",
-        "crawlee": "^3.13.8",
         "zod": "^4.1.13"
     },
     "devDependencies": {

@@ -59,8 +59,8 @@ apify push                     # Deploy Actor to Apify platform
 ## Key Dependencies
 
 - **apify** - Apify SDK for platform integration
-- **crawlee** - Web scraping framework (CheerioCrawler)
-- **cheerio** - HTML parsing for **NUXT** extraction
+- **@crawlee/http** - Lightweight HTTP crawler (no browser/DOM parsing)
+- **@crawlee/core** - Crawlee core utilities (logging, configuration)
 - **husky** - Git hooks (pre-commit runs lint/format)
 
 ## Important Patterns

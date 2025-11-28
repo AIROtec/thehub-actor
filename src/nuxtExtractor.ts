@@ -5,43 +5,38 @@
  * as an IIFE (Immediately Invoked Function Expression).
  */
 
-import * as cheerio from 'cheerio';
-import { log } from 'crawlee';
+import { log } from '@crawlee/core';
 
 import type { JobFull, NuxtState } from './types.js';
+
+// Regex to extract __NUXT__ IIFE content - avoids full DOM parsing
+const NUXT_REGEX = /window\.__NUXT__=(\(function\([^)]*\)\{return \{[\s\S]*?\}\}\([^)]*\)\))/;
 
 /**
  * Extract the __NUXT__ data from HTML and return the job object
  *
  * The data is embedded as:
  * <script>window.__NUXT__=(function(a,b,c,...){return {...}}("value1","value2",...))</script>
+ *
+ * Uses regex extraction instead of full DOM parsing for better performance.
  */
 export function extractJobFromHtml(html: string): JobFull | null {
-    const $ = cheerio.load(html);
+    const match = NUXT_REGEX.exec(html);
 
-    // Find all script tags
-    const scripts = $('script').toArray();
+    if (match?.[1]) {
+        try {
+            // eslint-disable-next-line no-eval
+            const nuxtData = eval(match[1]) as NuxtState;
 
-    for (const script of scripts) {
-        const content = $(script).html();
-
-        if (content?.includes('window.__NUXT__=')) {
-            try {
-                // Extract the IIFE and evaluate it
-                const nuxtCode = content.replace('window.__NUXT__=', '');
-                // eslint-disable-next-line no-eval
-                const nuxtData = eval(nuxtCode) as NuxtState;
-
-                if (nuxtData?.state?.jobs?.job) {
-                    return nuxtData.state.jobs.job;
-                }
-
-                log.warning('__NUXT__ data found but no job object in state.jobs.job');
-                return null;
-            } catch (error) {
-                log.error(`Failed to parse __NUXT__ data: ${error}`);
-                return null;
+            if (nuxtData?.state?.jobs?.job) {
+                return nuxtData.state.jobs.job;
             }
+
+            log.warning('__NUXT__ data found but no job object in state.jobs.job');
+            return null;
+        } catch (error) {
+            log.error(`Failed to parse __NUXT__ data: ${error}`);
+            return null;
         }
     }
 
@@ -53,21 +48,15 @@ export function extractJobFromHtml(html: string): JobFull | null {
  * Extract just the raw __NUXT__ state object (for debugging)
  */
 export function extractNuxtState(html: string): NuxtState | null {
-    const $ = cheerio.load(html);
-    const scripts = $('script').toArray();
+    const match = NUXT_REGEX.exec(html);
 
-    for (const script of scripts) {
-        const content = $(script).html();
-
-        if (content?.includes('window.__NUXT__=')) {
-            try {
-                const nuxtCode = content.replace('window.__NUXT__=', '');
-                // eslint-disable-next-line no-eval
-                return eval(nuxtCode) as NuxtState;
-            } catch (error) {
-                log.error(`Failed to parse __NUXT__ data: ${error}`);
-                return null;
-            }
+    if (match?.[1]) {
+        try {
+            // eslint-disable-next-line no-eval
+            return eval(match[1]) as NuxtState;
+        } catch (error) {
+            log.error(`Failed to parse __NUXT__ data: ${error}`);
+            return null;
         }
     }
 

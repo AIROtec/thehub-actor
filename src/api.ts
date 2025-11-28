@@ -2,7 +2,7 @@
  * API utilities for fetching thehub.io job listings
  */
 
-import { log } from 'crawlee';
+import { log } from '@crawlee/core';
 
 import type { JobListingBasic, JobsApiResponse, RegionCode } from './types.js';
 

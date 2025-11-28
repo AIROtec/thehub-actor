@@ -5,8 +5,9 @@
  * using their REST API for listings and SSR extraction for full details.
  */
 
+import { log } from '@crawlee/core';
+import { HttpCrawler, type HttpCrawlerOptions } from '@crawlee/http';
 import { Actor } from 'apify';
-import { CheerioCrawler, type CheerioCrawlerOptions, log } from 'crawlee';
 
 import { fetchAllJobs } from './api.js';
 import { router } from './routes.js';
@@ -94,13 +95,13 @@ if (process.env.MAX_PAGES_TEST) {
 }
 
 // Configure crawler
-const crawlerOptions: CheerioCrawlerOptions = {
+const crawlerOptions: HttpCrawlerOptions = {
     requestHandler: router,
     requestHandlerTimeoutSecs: 60,
-    maxConcurrency: 30, // High concurrency for HTTP requests (no browser)
+    maxConcurrency: 50, // High concurrency for HTTP requests (no browser)
     useSessionPool: true,
     sessionPoolOptions: {
-        maxPoolSize: 10,
+        maxPoolSize: 50, // Match concurrency for better connection reuse
         sessionOptions: {
             maxUsageCount: 100,
             maxErrorScore: 5,
@@ -124,7 +125,7 @@ if (finalMaxRequests > 0) {
     crawlerOptions.maxRequestsPerCrawl = finalMaxRequests;
 }
 
-const crawler = new CheerioCrawler(crawlerOptions);
+const crawler = new HttpCrawler(crawlerOptions);
 
 await crawler.run(startUrls);
 

@@ -2,8 +2,8 @@
  * Request handlers for thehub.io job scraper
  */
 
+import { createHttpRouter } from '@crawlee/http';
 import { Actor } from 'apify';
-import { createCheerioRouter } from 'crawlee';
 
 import { buildImageUrl } from './api.js';
 import { extractJobFromHtml } from './nuxtExtractor.js';
@@ -11,7 +11,7 @@ import { JobOutputSchema } from './schemas.js';
 import type { JobOutput } from './types.js';
 import { translateJobPositionTypes } from './types.js';
 
-export const router = createCheerioRouter();
+export const router = createHttpRouter();
 
 /**
  * Handler for individual job detail pages
