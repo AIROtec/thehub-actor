@@ -4,22 +4,22 @@
 
 import { log } from 'crawlee';
 
-import type { CountryCode, JobListingBasic, JobsApiResponse } from './types.js';
+import type { JobListingBasic, JobsApiResponse, RegionCode } from './types.js';
 
 const BASE_URL = 'https://thehub.io/api/v2';
 const PAGE_SIZE = 15; // Fixed by TheHub API
 
 /**
- * Fetch job listings for a specific country and page
+ * Fetch job listings for a specific region and page
  * Note: REMOTE uses isRemote=true instead of countryCode
  */
-export async function fetchJobsPage(countryCode: CountryCode, page: number): Promise<JobsApiResponse> {
+export async function fetchJobsPage(region: RegionCode, page: number): Promise<JobsApiResponse> {
     const url = new URL(`${BASE_URL}/jobsandfeatured`);
 
-    if (countryCode === 'REMOTE') {
+    if (region === 'REMOTE') {
         url.searchParams.set('isRemote', 'true');
     } else {
-        url.searchParams.set('countryCode', countryCode);
+        url.searchParams.set('countryCode', region);
     }
 
     url.searchParams.set('page', page.toString());
@@ -37,19 +37,19 @@ export async function fetchJobsPage(countryCode: CountryCode, page: number): Pro
 }
 
 /**
- * Fetch all job listings for a specific country (handles pagination)
- * @param countryCode - Country code to fetch jobs for
+ * Fetch all job listings for a specific region (handles pagination)
+ * @param region - Region code to fetch jobs for
  * @param limit - Optional limit on number of jobs to fetch (0 = unlimited)
  */
-export async function fetchAllJobsForCountry(countryCode: CountryCode, limit = 0): Promise<JobListingBasic[]> {
+export async function fetchAllJobsForRegion(region: RegionCode, limit = 0): Promise<JobListingBasic[]> {
     const allJobs: JobListingBasic[] = [];
     let page = 1;
     let totalPages = 1;
 
-    log.info(`Fetching jobs for country: ${countryCode}${limit > 0 ? ` (limit: ${limit})` : ''}`);
+    log.info(`Fetching jobs for region: ${region}${limit > 0 ? ` (limit: ${limit})` : ''}`);
 
     while (page <= totalPages) {
-        const response = await fetchJobsPage(countryCode, page);
+        const response = await fetchJobsPage(region, page);
 
         // Add regular jobs
         allJobs.push(...response.jobs.docs);
@@ -65,7 +65,7 @@ export async function fetchAllJobsForCountry(countryCode: CountryCode, limit = 0
         const regularCount = response.jobs.docs.length;
         const pageTotal = regularCount + featuredCount;
         const featuredInfo = featuredCount > 0 ? ` (${regularCount} regular + ${featuredCount} featured)` : '';
-        log.info(`Fetched page ${page}/${totalPages} for ${countryCode}: ${pageTotal} jobs${featuredInfo}`);
+        log.info(`Fetched page ${page}/${totalPages} for ${region}: ${pageTotal} jobs${featuredInfo}`);
 
         // Stop early if we have enough jobs
         if (limit > 0 && allJobs.length >= limit) {
@@ -76,21 +76,21 @@ export async function fetchAllJobsForCountry(countryCode: CountryCode, limit = 0
         page++;
     }
 
-    log.info(`Fetched ${allJobs.length} total jobs for ${countryCode}`);
+    log.info(`Fetched ${allJobs.length} total jobs for ${region}`);
 
     return allJobs;
 }
 
 /**
- * Fetch all jobs for multiple countries
- * @param countryCodes - Array of country codes to fetch jobs for
+ * Fetch all jobs for multiple regions
+ * @param regions - Array of region codes to fetch jobs for
  * @param limit - Optional limit on total number of jobs to fetch (0 = unlimited)
  */
-export async function fetchAllJobs(countryCodes: CountryCode[], limit = 0): Promise<JobListingBasic[]> {
+export async function fetchAllJobs(regions: RegionCode[], limit = 0): Promise<JobListingBasic[]> {
     const allJobs: JobListingBasic[] = [];
     const seenJobIds = new Set<string>();
 
-    for (const countryCode of countryCodes) {
+    for (const region of regions) {
         // Calculate remaining jobs needed
         const remaining = limit > 0 ? limit - allJobs.length : 0;
 
@@ -99,9 +99,9 @@ export async function fetchAllJobs(countryCodes: CountryCode[], limit = 0): Prom
             break;
         }
 
-        const jobs = await fetchAllJobsForCountry(countryCode, remaining);
+        const jobs = await fetchAllJobsForRegion(region, remaining);
 
-        // Deduplicate jobs that might appear in multiple countries
+        // Deduplicate jobs that might appear in multiple regions
         for (const job of jobs) {
             if (!seenJobIds.has(job.id)) {
                 seenJobIds.add(job.id);
@@ -115,7 +115,7 @@ export async function fetchAllJobs(countryCodes: CountryCode[], limit = 0): Prom
         }
     }
 
-    log.info(`Fetched ${allJobs.length} unique jobs across ${countryCodes.length} countries`);
+    log.info(`Fetched ${allJobs.length} unique jobs across ${regions.length} regions`);
 
     return allJobs;
 }

@@ -2,8 +2,8 @@
  * TypeScript types for thehub.io API and data structures
  */
 
-export const COUNTRY_CODES = ['FI', 'SE', 'DK', 'NO', 'IS', 'EU', 'REMOTE'] as const;
-export type CountryCode = (typeof COUNTRY_CODES)[number];
+export const REGION_CODES = ['FI', 'SE', 'DK', 'NO', 'IS', 'EU', 'REMOTE'] as const;
+export type RegionCode = (typeof REGION_CODES)[number];
 
 /**
  * Mapping of job position type IDs to human-readable labels
@@ -160,7 +160,7 @@ export interface NuxtState {
  */
 export interface Input {
     jobUrl?: string;
-    regions?: CountryCode[];
+    regions?: RegionCode[];
     maxRequestsPerCrawl?: number;
 }
 

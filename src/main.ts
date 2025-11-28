@@ -10,7 +10,7 @@ import { CheerioCrawler, type CheerioCrawlerOptions, log } from 'crawlee';
 
 import { fetchAllJobs } from './api.js';
 import { router } from './routes.js';
-import { COUNTRY_CODES, type CountryCode, type Input } from './types.js';
+import { type Input, REGION_CODES, type RegionCode } from './types.js';
 
 const FREE_TIER_ITEM_LIMIT = 50;
 
@@ -24,7 +24,7 @@ const {
 } = (await Actor.getInput<Input>()) ?? {};
 
 // Use all regions if none selected
-const regions = inputRegions.length > 0 ? inputRegions : [...COUNTRY_CODES];
+const regions = inputRegions.length > 0 ? inputRegions : [...REGION_CODES];
 
 // Environment variable overrides
 const envJobUrl = process.env.JOB_URL;
@@ -61,7 +61,7 @@ if (finalJobUrl) {
     // Fetch all jobs from API for selected regions
     log.info(`Fetching jobs for regions: ${regions.join(', ')}`);
 
-    const validRegions = regions.filter((c): c is CountryCode => COUNTRY_CODES.includes(c as CountryCode));
+    const validRegions = regions.filter((r): r is RegionCode => REGION_CODES.includes(r as RegionCode));
 
     // Fetch jobs with optional limit
     const jobs = await fetchAllJobs(validRegions, finalMaxRequests);

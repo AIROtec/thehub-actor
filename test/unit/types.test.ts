@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { COUNTRY_CODES, JOB_POSITION_TYPE_MAP, translateJobPositionTypes } from '../../src/types.js';
+import { JOB_POSITION_TYPE_MAP, REGION_CODES, translateJobPositionTypes } from '../../src/types.js';
 
 describe('JOB_POSITION_TYPE_MAP', () => {
     it('should have all expected position type IDs', () => {
@@ -78,21 +78,21 @@ describe('translateJobPositionTypes', () => {
     });
 });
 
-describe('COUNTRY_CODES', () => {
+describe('REGION_CODES', () => {
     it('should contain all Nordic countries', () => {
-        expect(COUNTRY_CODES).toContain('FI'); // Finland
-        expect(COUNTRY_CODES).toContain('SE'); // Sweden
-        expect(COUNTRY_CODES).toContain('DK'); // Denmark
-        expect(COUNTRY_CODES).toContain('NO'); // Norway
-        expect(COUNTRY_CODES).toContain('IS'); // Iceland
+        expect(REGION_CODES).toContain('FI'); // Finland
+        expect(REGION_CODES).toContain('SE'); // Sweden
+        expect(REGION_CODES).toContain('DK'); // Denmark
+        expect(REGION_CODES).toContain('NO'); // Norway
+        expect(REGION_CODES).toContain('IS'); // Iceland
     });
 
     it('should contain EU and REMOTE options', () => {
-        expect(COUNTRY_CODES).toContain('EU');
-        expect(COUNTRY_CODES).toContain('REMOTE');
+        expect(REGION_CODES).toContain('EU');
+        expect(REGION_CODES).toContain('REMOTE');
     });
 
-    it('should have exactly 7 country codes', () => {
-        expect(COUNTRY_CODES).toHaveLength(7);
+    it('should have exactly 7 region codes', () => {
+        expect(REGION_CODES).toHaveLength(7);
     });
 });

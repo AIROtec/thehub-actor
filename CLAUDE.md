@@ -90,9 +90,9 @@ const nuxtData = eval(nuxtCode) as NuxtState;
 const job = nuxtData.state.jobs.job;
 ```
 
-### Country Codes
+### Region Codes
 
-Supported country codes: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (All European)
+Supported region codes: `FI` (Finland), `SE` (Sweden), `DK` (Denmark), `NO` (Norway), `IS` (Iceland), `EU` (Other Europe), `REMOTE` (Remote jobs)
 
 ## Testing Environment Variables
 
