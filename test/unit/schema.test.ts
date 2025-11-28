@@ -80,7 +80,7 @@ describe('Schema Validation', () => {
             expect(result.isValid).toBe(shouldPass);
         });
 
-        it.each(['company', 'location', 'views'])('should fail if %s is missing', (field) => {
+        it.each(['company', 'views'])('should fail if %s is missing', (field) => {
             const { [field]: _, ...data } = validJobData;
             const result = validateJobOutputSchema(data);
             expect(result.isValid).toBe(false);
@@ -174,7 +174,7 @@ describe('Schema Validation', () => {
         });
 
         describe('optional fields', () => {
-            it.each(['link', 'expirationDate', 'salaryRange'])('should pass without %s', (field) => {
+            it.each(['link', 'expirationDate', 'salaryRange', 'location'])('should pass without %s', (field) => {
                 const { [field]: _, ...data } = validJobData;
                 const result = validateJobOutputSchema(data);
                 expect(result.isValid).toBe(true);

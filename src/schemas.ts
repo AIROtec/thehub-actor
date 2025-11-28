@@ -11,20 +11,20 @@ export const CompanyOutputSchema = z.object({
     id: z.string().min(1),
     key: z.string().min(1),
     name: z.string().min(1),
-    website: z.string().min(1),
-    numberOfEmployees: z.string().min(1),
-    founded: z.string().min(1),
+    website: z.string(), // Can be empty for some companies
+    numberOfEmployees: z.string(),
+    founded: z.string(),
     whatWeDo: z.string().optional(),
     logoUrl: z.string().optional(),
 });
 
 /**
- * Schema for location data
+ * Schema for location data (fields can be empty for some jobs)
  */
 export const LocationSchema = z.object({
-    country: z.string().min(1),
-    locality: z.string().min(1),
-    address: z.string().min(1),
+    country: z.string(),
+    locality: z.string(),
+    address: z.string(),
 });
 
 /**
@@ -58,7 +58,7 @@ export const JobOutputSchema = z.object({
     title: z.string().min(1),
     description: z.string().min(1),
     company: CompanyOutputSchema,
-    location: LocationSchema,
+    location: LocationSchema.optional(),
     isRemote: z.boolean(),
     salary: z.string().min(1),
     salaryRange: SalaryRangeSchema.optional(),

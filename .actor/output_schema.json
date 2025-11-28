@@ -9,5 +9,132 @@
             "title": "Job Listings",
             "template": "{{links.apiDefaultDatasetUrl}}/items?view=jobs"
         }
+    },
+    "itemSchema": {
+        "type": "object",
+        "required": [
+            "id",
+            "key",
+            "url",
+            "title",
+            "description",
+            "company",
+            "isRemote",
+            "salary",
+            "equity",
+            "jobRole",
+            "jobPositionTypes",
+            "views",
+            "createdAt",
+            "publishedAt",
+            "scrapedAt"
+        ],
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "Unique job ID from thehub.io"
+            },
+            "key": {
+                "type": "string",
+                "description": "URL-friendly job key"
+            },
+            "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "Full URL to job listing"
+            },
+            "title": {
+                "type": "string",
+                "description": "Job title"
+            },
+            "description": {
+                "type": "string",
+                "description": "Full job description (HTML)"
+            },
+            "company": {
+                "type": "object",
+                "required": ["id", "key", "name"],
+                "properties": {
+                    "id": { "type": "string" },
+                    "key": { "type": "string" },
+                    "name": { "type": "string" },
+                    "website": { "type": "string" },
+                    "numberOfEmployees": { "type": "string" },
+                    "founded": { "type": "string" },
+                    "whatWeDo": { "type": "string" },
+                    "logoUrl": { "type": "string", "format": "uri" }
+                }
+            },
+            "location": {
+                "type": "object",
+                "description": "Optional - may be missing for remote jobs",
+                "properties": {
+                    "country": { "type": "string" },
+                    "locality": { "type": "string" },
+                    "address": { "type": "string" }
+                }
+            },
+            "isRemote": {
+                "type": "boolean",
+                "description": "Whether the job allows remote work"
+            },
+            "salary": {
+                "type": "string",
+                "description": "Salary information (text)"
+            },
+            "salaryRange": {
+                "type": "object",
+                "description": "Optional structured salary range",
+                "properties": {
+                    "min": { "type": "number" },
+                    "max": { "type": "number" }
+                }
+            },
+            "equity": {
+                "type": "string",
+                "description": "Equity information"
+            },
+            "jobRole": {
+                "type": "string",
+                "description": "Job role category"
+            },
+            "jobPositionTypes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Position types (Full-time, Part-time, etc.)"
+            },
+            "views": {
+                "type": "object",
+                "properties": {
+                    "week": { "type": "number" },
+                    "total": { "type": "number" }
+                }
+            },
+            "link": {
+                "type": "string",
+                "format": "uri",
+                "description": "External application link"
+            },
+            "createdAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the job was created"
+            },
+            "publishedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the job was published"
+            },
+            "expirationDate": {
+                "type": "string",
+                "format": "date",
+                "description": "When the job expires (YYYY-MM-DD)"
+            },
+            "scrapedAt": {
+                "type": "string",
+                "format": "date-time",
+                "description": "When the job was scraped"
+            }
+        }
     }
 }
