@@ -19,12 +19,12 @@ export const CompanyOutputSchema = z.object({
 });
 
 /**
- * Schema for location data (fields can be empty for some jobs)
+ * Schema for location data (fields can be empty or missing for some jobs)
  */
 export const LocationSchema = z.object({
-    country: z.string(),
-    locality: z.string(),
-    address: z.string(),
+    country: z.string().optional(),
+    locality: z.string().optional(),
+    address: z.string().optional(),
 });
 
 /**
