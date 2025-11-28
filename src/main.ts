@@ -33,7 +33,7 @@ const finalJobUrl = envJobUrl || inputJobUrl;
 
 // Determine max requests early (for limiting API fetching too)
 const { userIsPaying } = Actor.getEnv();
-const isFreeTier = !userIsPaying;
+const isFreeTier = Actor.isAtHome() && !userIsPaying;
 let finalMaxRequests = process.env.MAX_PAGES_TEST ? parseInt(process.env.MAX_PAGES_TEST, 10) : maxRequestsPerCrawl;
 
 if (isFreeTier && (finalMaxRequests === 0 || finalMaxRequests > FREE_TIER_ITEM_LIMIT)) {
