@@ -38,42 +38,59 @@ export async function fetchJobsPage(region: RegionCode, page: number): Promise<J
 
 /**
  * Fetch all job listings for a specific region (handles pagination)
+ * Uses parallel fetching for remaining pages after getting page 1
  * @param region - Region code to fetch jobs for
  * @param limit - Optional limit on number of jobs to fetch (0 = unlimited)
  */
 export async function fetchAllJobsForRegion(region: RegionCode, limit = 0): Promise<JobListingBasic[]> {
     const allJobs: JobListingBasic[] = [];
-    let page = 1;
-    let totalPages = 1;
 
     log.info(`Fetching jobs for region: ${region}${limit > 0 ? ` (limit: ${limit})` : ''}`);
 
-    while (page <= totalPages) {
-        const response = await fetchJobsPage(region, page);
+    // Fetch first page to get total pages count
+    const firstResponse = await fetchJobsPage(region, 1);
+    const totalPages = firstResponse.jobs.pages;
 
-        // Add regular jobs
+    // Add jobs from first page
+    allJobs.push(...firstResponse.jobs.docs);
+    if (firstResponse.featuredJobs?.docs) {
+        allJobs.push(...firstResponse.featuredJobs.docs);
+    }
+
+    const featuredCount = firstResponse.featuredJobs?.docs?.length ?? 0;
+    const regularCount = firstResponse.jobs.docs.length;
+    const pageTotal = regularCount + featuredCount;
+    const featuredInfo = featuredCount > 0 ? ` (${regularCount} regular + ${featuredCount} featured)` : '';
+    log.info(`Fetched page 1/${totalPages} for ${region}: ${pageTotal} jobs${featuredInfo}`);
+
+    // Check if we're done or limited
+    if (totalPages === 1 || (limit > 0 && allJobs.length >= limit)) {
+        if (limit > 0 && allJobs.length >= limit) {
+            log.info(`Reached limit of ${limit} jobs for ${region}`);
+        }
+        log.info(`Fetched ${allJobs.length} total jobs for ${region}`);
+        return allJobs;
+    }
+
+    // Fetch remaining pages in parallel
+    const remainingPages = Array.from({ length: totalPages - 1 }, (_, i) => i + 2);
+    log.debug(`Fetching pages 2-${totalPages} for ${region} in parallel`);
+
+    const remainingResponses = await Promise.all(remainingPages.map(async (page) => fetchJobsPage(region, page)));
+
+    for (let i = 0; i < remainingResponses.length; i++) {
+        const response = remainingResponses[i];
+        const page = remainingPages[i];
+
         allJobs.push(...response.jobs.docs);
 
-        // Add featured jobs (only on first page to avoid duplicates)
-        if (page === 1 && response.featuredJobs?.docs) {
-            allJobs.push(...response.featuredJobs.docs);
-        }
+        log.info(`Fetched page ${page}/${totalPages} for ${region}: ${response.jobs.docs.length} jobs`);
 
-        totalPages = response.jobs.pages;
-
-        const featuredCount = page === 1 ? (response.featuredJobs?.docs?.length ?? 0) : 0;
-        const regularCount = response.jobs.docs.length;
-        const pageTotal = regularCount + featuredCount;
-        const featuredInfo = featuredCount > 0 ? ` (${regularCount} regular + ${featuredCount} featured)` : '';
-        log.info(`Fetched page ${page}/${totalPages} for ${region}: ${pageTotal} jobs${featuredInfo}`);
-
-        // Stop early if we have enough jobs
+        // Stop adding if we've reached the limit
         if (limit > 0 && allJobs.length >= limit) {
-            log.info(`Reached limit of ${limit} jobs, stopping pagination`);
+            log.info(`Reached limit of ${limit} jobs for ${region}`);
             break;
         }
-
-        page++;
     }
 
     log.info(`Fetched ${allJobs.length} total jobs for ${region}`);
@@ -82,26 +99,19 @@ export async function fetchAllJobsForRegion(region: RegionCode, limit = 0): Prom
 }
 
 /**
- * Fetch all jobs for multiple regions
+ * Fetch all jobs for multiple regions (in parallel)
  * @param regions - Array of region codes to fetch jobs for
  * @param limit - Optional limit on total number of jobs to fetch (0 = unlimited)
  */
 export async function fetchAllJobs(regions: RegionCode[], limit = 0): Promise<JobListingBasic[]> {
-    const allJobs: JobListingBasic[] = [];
     const seenJobIds = new Set<string>();
+    const allJobs: JobListingBasic[] = [];
 
-    for (const region of regions) {
-        // Calculate remaining jobs needed
-        const remaining = limit > 0 ? limit - allJobs.length : 0;
+    // Fetch all regions in parallel
+    const regionResults = await Promise.all(regions.map(async (region) => fetchAllJobsForRegion(region, 0)));
 
-        // Stop if we've reached the limit
-        if (limit > 0 && allJobs.length >= limit) {
-            break;
-        }
-
-        const jobs = await fetchAllJobsForRegion(region, remaining);
-
-        // Deduplicate jobs that might appear in multiple regions
+    // Combine and deduplicate results
+    for (const jobs of regionResults) {
         for (const job of jobs) {
             if (!seenJobIds.has(job.id)) {
                 seenJobIds.add(job.id);
@@ -112,6 +122,11 @@ export async function fetchAllJobs(regions: RegionCode[], limit = 0): Promise<Jo
                     break;
                 }
             }
+        }
+
+        // Stop if we've reached the limit
+        if (limit > 0 && allJobs.length >= limit) {
+            break;
         }
     }
 
