@@ -222,7 +222,7 @@ jobs:
 
             - name: Upload E2E validation logs
               if: always()
-              uses: actions/upload-artifact@v4
+              uses: actions/upload-artifact@v7
               with:
                   name: e2e-validation-logs
                   path: |
