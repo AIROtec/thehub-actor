@@ -7,27 +7,27 @@
         "node": ">=18.0.0"
     },
     "dependencies": {
-        "@crawlee/core": "^3.13.8",
-        "@crawlee/http": "^3.13.8",
-        "apify": "^3.4.2",
-        "zod": "^4.1.13"
+        "@crawlee/core": "^3.16.0",
+        "@crawlee/http": "^3.16.0",
+        "apify": "^3.7.0",
+        "zod": "^4.3.6"
     },
     "devDependencies": {
-        "@apify/eslint-config": "^1.0.0",
-        "@apify/tsconfig": "^0.1.1",
-        "@types/node": "^25.5.2",
-        "@vitest/coverage-v8": "^4.0.14",
+        "@apify/eslint-config": "^2.0.6",
+        "@apify/tsconfig": "^0.1.2",
+        "@types/node": "^25.6.0",
+        "@vitest/coverage-v8": "^4.1.5",
         "@vitest/ui": "^4.0.8",
-        "apify-client": "^2.19.0",
+        "apify-client": "^2.23.0",
         "dotenv-cli": "^11.0.0",
-        "eslint": "^9.29.0",
+        "eslint": "^9.39.4",
         "eslint-config-prettier": "^10.1.5",
-        "globals": "^17.4.0",
+        "globals": "^17.5.0",
         "husky": "^9.1.7",
-        "prettier": "^3.5.3",
-        "tsx": "^4.20.3",
-        "typescript": "^6.0.2",
-        "typescript-eslint": "^8.58.1",
+        "prettier": "^3.8.3",
+        "tsx": "^4.21.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.59.1",
         "vitest": "^4.0.14"
     },
     "scripts": {
